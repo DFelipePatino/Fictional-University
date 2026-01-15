@@ -3,16 +3,17 @@
 /**
  * Load environment variables from .env file in WordPress root
  */
-function load_env_file() {
+function load_env_file()
+{
     static $env_loaded = false;
-    
+
     if ($env_loaded) {
         return;
     }
-    
+
     // Path to .env file in WordPress root (two levels up from theme directory)
     $env_path = ABSPATH . '.env';
-    
+
     if (file_exists($env_path)) {
         // FILE_IGNORE_NEW_LINES (2) | FILE_SKIP_EMPTY_LINES (4)
         $lines = @file($env_path, 2 | 4);
@@ -24,16 +25,16 @@ function load_env_file() {
             if (strpos(trim($line), '#') === 0) {
                 continue;
             }
-            
+
             // Parse KEY=VALUE format
             if (strpos($line, '=') !== false) {
                 list($key, $value) = explode('=', $line, 2);
                 $key = trim($key);
                 $value = trim($value);
-                
+
                 // Remove quotes if present
                 $value = trim($value, '"\'');
-                
+
                 // Set environment variable if not already set
                 if (!getenv($key)) {
                     putenv("$key=$value");
@@ -42,7 +43,7 @@ function load_env_file() {
             }
         }
     }
-    
+
     $env_loaded = true;
 }
 
@@ -52,25 +53,26 @@ load_env_file();
 /**
  * Get Google Maps API key from environment variables
  */
-function get_google_maps_api_key() {
+function get_google_maps_api_key()
+{
     // Check environment variable first
     $key = getenv('GOOGLE_MAPS_API_KEY');
-    
+
     // Fallback to $_ENV superglobal
     if (empty($key) && isset($_ENV['GOOGLE_MAPS_API_KEY'])) {
         $key = $_ENV['GOOGLE_MAPS_API_KEY'];
     }
-    
+
     // Fallback to WordPress constant (can be set in wp-config.php)
     if (empty($key) && defined('GOOGLE_MAPS_API_KEY')) {
         $key = constant('GOOGLE_MAPS_API_KEY');
     }
-    
+
     // Development fallback (remove in production)
     if (empty($key)) {
         $key = 'AIzaSyBmRLaursZs_olbDhYmWWN3jHdhuRhvXbc';
     }
-    
+
     return $key;
 }
 
@@ -112,6 +114,10 @@ function university_files()
     wp_enqueue_style('font-awesome', '//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
     wp_enqueue_style('university_main_styles', get_theme_file_uri('/build/style-index.css'));
     wp_enqueue_style('university_extra_styles', get_theme_file_uri('/build/index.css'));
+
+    wp_localize_script('main-university-js', 'universityData', array(
+        'root_url' => get_site_url()
+    ));
 }
 
 
