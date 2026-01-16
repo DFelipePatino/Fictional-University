@@ -1,5 +1,7 @@
 <?php
 
+require get_theme_file_path('/inc/search-route.php');
+
 /**
  * Load environment variables from .env file in WordPress root
  */
@@ -75,6 +77,17 @@ function get_google_maps_api_key()
 
     return $key;
 }
+
+function university_custom_rest()
+{
+    register_rest_field('post', 'authorName', array(
+        'get_callback' => function () {
+            return get_the_author();
+        }
+    ));
+}
+
+add_action('rest_api_init', 'university_custom_rest');
 
 function pageBanner($args = NULL)
 {
